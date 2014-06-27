@@ -1,9 +1,9 @@
 package main
 
 import (
+	// "bytes"
 	"fmt"
-	"github.com/jmcvetta/napping"
-	"log"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -11,17 +11,19 @@ func main() {
 	url := "http://restapi3.apiary.io/notes"
 	fmt.Println("URL:>", url)
 
-	s := napping.Session{}
-	h := &http.Header{}
-	h.Set("X-Custom-Header", "myvalue")
-	h.Set("X-Custom-Header2", "myvalue")
-	s.Header = h
-	resp, err := s.Get(url, nil, nil, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("response Status:", resp.Status())
-	fmt.Println("response Headers:", resp.HttpResponse().Header)
-	fmt.Println("response Body:", resp.RawText())
+	req, err := http.NewRequest("GET", url, nil)
+	// req.Header.Set("X-Custom-Header", "myvalue")
+	// req.Header.Set("Content-Type", "application/json")
 
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	fmt.Println("response Status:", resp.Status)
+	fmt.Println("response Headers:", resp.Header)
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("response Body:", string(body))
 }
